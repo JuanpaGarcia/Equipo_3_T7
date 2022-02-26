@@ -98,6 +98,11 @@ typedef struct
 	uint8_t flag_port_e : 1;
 } gpio_interrupt_flags_t;
 
+typedef enum {	Not_Pressed,	//nO BUTTON PRESSED
+				SW2, 			//SW1 Pressed
+				SW3, 			//SW2 Pressed
+				SW2_SW3 		//sw1 & sw2 Pressed
+				} Switches_t;
 
 /*! This data type is used to configure the pin control register*/
 typedef const uint32_t gpio_pin_control_register_t;

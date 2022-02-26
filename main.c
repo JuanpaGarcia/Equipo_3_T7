@@ -9,30 +9,29 @@
 #include "NVIC.h"
 #include "GPIO.h"
 #include "Bits.h"
+#include "RGB.h"
 
 #define DELAY_TIME 2.0f
 #define SYSTEM_CLOCK (21000000U)
-
-extern uint8_t g_flag_port_C;
-extern uint8_t g_flag_port_A;
-extern uint8_t g_PIT0_flag;
+#define Color_Quantity_Per_Funciton 4
+#define SYSTEM_CLOCK (21000000U)
 
 typedef struct
 {
-	void* ColorMatrix[2];
-	float_t delay;
-	void(*fptrdelay)(PIT_timer_t pit_timer, My_float_pit_t system_clock , My_float_pit_t delay);
+	void* ColorMatrix[Color_Quantity_Per_Funciton];
+	PIT_timer_t Timer;
+	void(*fptrcallback)(PIT_timer_t pit_timer, void (*handler)(void));
 	uint8_t next[3];
 }State_t;
 
 typedef enum {No_Color, Secuence_1, Secuence2, Secuence_3} Color_Secuences;
 
-const State_t FSM[3] =
+const State_t FSM[4] =
 {
-		{{off, off, off}, DELAY_TIME, PIT_delay, {No_Color, Secuence_1, Secuence2, Secuence_3}},
-		{{yellow, red, purple}, DELAY_TIME, PIT_delay, {No_Color, Secuence_1, Secuence2, Secuence_3}},
-		{{green, red, white}, DELAY_TIME, PIT_delay, {No_Color, Secuence_1, Secuence2, Secuence_3}},
-		{{blue, green, white}, DELAY_TIME, PIT_delay, {No_Color, Secuence_1, Secuence2, Secuence_3}}
+		{{off, off, off}, PIT_0, PIT_callback_init, {No_Color, Secuence_1, Secuence2, Secuence_3}},
+		{{yellow, red, purple}, PIT_0, PIT_callback_init, {No_Color, Secuence_1, Secuence2, Secuence_3}},
+		{{green, red, white}, PIT_0, PIT_callback_init, {No_Color, Secuence_1, Secuence2, Secuence_3}},
+		{{blue, green, white}, PIT_0, PIT_callback_init, {No_Color, Secuence_1, Secuence2, Secuence_3}}
 };
 
 void init_interrupt();
@@ -42,12 +41,40 @@ int main()
 {
 	init();
 	init_interrupt();
-	uint8_t state_port_C = 0;
-	uint8_t state_port_A = 0;
 
-	while(1)
+	uint8_t state = No_Color;
+	uint8_t turn = 0;
+	uint8_t sw_input = Not_Pressed;
+	void (*ftpr_selected_color)(void) = 0;
+
+	while(TRUE)
 	{
 
+		if (Color_Quantity_Per_Funciton > turn) turn = 0; //Ensure not accesing an outbound value in Color Matrix
+		ftpr_selected_color = FSM[state].ColorMatrix[turn];
+		FSM[state].fptrcallback(FSM[state].Timer, ftpr_selected_color);
+
+		if(GPIO_get_irq_status(GPIO_C)){
+			if(GPIO_get_irq_status(GPIO_A)){
+				sw_input = SW2_SW3;
+				turn = 0;									//Resets count
+				GPIO_clear_irq_status(GPIO_A);
+				GPIO_clear_irq_status(GPIO_B);
+			}else{
+				sw_input = SW2;
+				turn = 0;									//Resets count
+				GPIO_clear_irq_status(GPIO_C);
+			}
+		}else{
+			if(GPIO_get_irq_status(GPIO_A)){
+				sw_input = SW3;
+				turn = 0;									//Resets count
+				GPIO_clear_irq_status(GPIO_A);
+			}
+		}
+
+		state = FSM[state].next[sw_input];
+		turn++;
 	}
 	return 0;
 }
@@ -76,7 +103,7 @@ void init()
 	PIT_clock_gating();
 	PIT_enable();
 
-	PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY);
+	PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY_TIME);
 }
 
 

@@ -14,6 +14,8 @@
 #include "GPIO.h"
 
 static volatile gpio_interrupt_flags_t g_intr_status_flag = {0};
+static void (*gpio_C_callback)(void) = 0;
+static void (*gpio_A_callback)(void) = 0;
 
 void GPIO_callback_init(gpio_port_name_t port_name,void (*handler)(void))
 {
@@ -33,9 +35,8 @@ void PORTC_IRQHandler(void)
 	{
 		gpio_C_callback();
 	}
-
+	g_intr_status_flag.flag_port_c = TRUE;
 	GPIO_clear_interrupt(GPIO_C);
-
 }
 
 
@@ -45,7 +46,7 @@ void PORTA_IRQHandler(void)
 	{
 		gpio_A_callback();
 	}
-
+	g_intr_status_flag.flag_port_a = TRUE;
 	GPIO_clear_interrupt(GPIO_A);
 }
 

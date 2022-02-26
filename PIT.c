@@ -7,9 +7,8 @@
 
 #include "PIT.h"
 
-uint8_t g_PIT0_flag = FALSE;
 static void (*g_PIT_callback)(void) = 0;
-
+uint8_t g_PIT0_flag = FALSE;
 
 void PIT_callback_init(PIT_timer_t pit_timer,void (*handler)(void))
 {
@@ -21,7 +20,7 @@ void PIT_callback_init(PIT_timer_t pit_timer,void (*handler)(void))
 
 void PIT0_IRQHandler(void) /* ISR PIT_0*/
 {
-	g_PIT0_flag = TRUE;
+	//g_PIT0_flag = TRUE;
 	uint8_t dummyRead;
 	PIT->CHANNEL[0].TFLG |= PIT_TFLG_TIF_MASK;	//Aquí se limpia interrupción
 	dummyRead = PIT->CHANNEL[0].TCTRL;
