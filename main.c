@@ -13,7 +13,7 @@
 
 #define DELAY_TIME 2.0f
 #define SYSTEM_CLOCK (21000000U)
-#define Color_Quantity_Per_Funciton 4
+#define Color_Quantity_Per_Funciton 3
 #define SYSTEM_CLOCK (21000000U)
 
 typedef struct
@@ -21,7 +21,7 @@ typedef struct
 	void* ColorMatrix[Color_Quantity_Per_Funciton];
 	PIT_timer_t Timer;
 	void(*fptrcallback)(PIT_timer_t pit_timer, void (*handler)(void));
-	uint8_t next[3];
+	uint8_t next[4];
 }State_t;
 
 typedef enum {No_Color, Secuence_1, Secuence2, Secuence_3} Color_Secuences;
@@ -46,6 +46,8 @@ int main()
 	uint8_t turn = 0;
 	uint8_t sw_input = Not_Pressed;
 	void (*ftpr_selected_color)(void) = 0;
+
+	//PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY_TIME);
 
 	while(TRUE)
 	{
@@ -74,7 +76,12 @@ int main()
 		}
 
 		state = FSM[state].next[sw_input];
-		turn++;
+
+		if(PIT_get_interrupt_flag_status())
+		{
+			turn++;
+			PIT_clear_interrupt_flag();
+		}
 	}
 	return 0;
 }
@@ -87,9 +94,11 @@ void init()
 	GPIO_clock_gating(GPIO_A);
 	GPIO_clock_gating(GPIO_B);
 	GPIO_clock_gating(GPIO_C);
+	GPIO_clock_gating(GPIO_E);
 
 	GPIO_pin_control_register(GPIO_A,4, &input_intr_config);
 	GPIO_pin_control_register(GPIO_C,6, &input_intr_config);
+
 	GPIO_pin_control_register(GPIO_B,21,&pcr_gpioe_pin_led);
 	GPIO_pin_control_register(GPIO_B,22,&pcr_gpioe_pin_led);
 	GPIO_pin_control_register(GPIO_E,26,&pcr_gpioe_pin_led);
@@ -103,7 +112,6 @@ void init()
 	PIT_clock_gating();
 	PIT_enable();
 
-	PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY_TIME);
 }
 
 

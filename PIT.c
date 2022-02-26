@@ -24,6 +24,7 @@ void PIT0_IRQHandler(void) /* ISR PIT_0*/
 	uint8_t dummyRead;
 	PIT->CHANNEL[0].TFLG |= PIT_TFLG_TIF_MASK;	//Aquí se limpia interrupción
 	dummyRead = PIT->CHANNEL[0].TCTRL;
+	g_PIT0_flag = TRUE;
 	if(g_PIT_callback != 0)
 	{
 		g_PIT_callback();
