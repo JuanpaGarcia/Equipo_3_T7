@@ -15,6 +15,7 @@
 
 extern uint8_t g_flag_port_C;
 extern uint8_t g_flag_port_A;
+extern uint8_t g_PIT0_flag;
 
 typedef struct
 {
@@ -41,6 +42,8 @@ int main()
 {
 	init();
 	init_interrupt();
+	uint8_t state_port_C = 0;
+	uint8_t state_port_A = 0;
 
 	while(1)
 	{
@@ -69,9 +72,27 @@ void init()
 	GPIO_data_direction_pin(GPIO_E, GPIO_OUTPUT, bit_26);
 	GPIO_data_direction_pin(GPIO_C, GPIO_INPUT, bit_6);
 	GPIO_data_direction_pin(GPIO_A, GPIO_INPUT, bit_4);
+
+	PIT_clock_gating();
+	PIT_enable();
+
+	PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY);
 }
+
+
 
 void init_interrupt()
 {
+
+	/**Sets the threshold for interrupts, if the interrupt has higher priority constant that the BASEPRI, the interrupt will not be attended*/
+	NVIC_set_basepri_threshold(PRIORITY_10);
+	/**Enables and sets a particular interrupt and its priority*/
+	NVIC_enable_interrupt_and_priotity(PIT_CH0_IRQ, PRIORITY_3);
+	/**Enables and sets a particular interrupt and its priority*/
+	NVIC_enable_interrupt_and_priotity(PORTC_IRQ, PRIORITY_4);
+	/**Enables and sets a particular interrupt and its priority*/
+	NVIC_enable_interrupt_and_priotity(PORTA_IRQ, PRIORITY_4);
+
+	NVIC_global_enable_interrupts;
 
 }

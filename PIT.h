@@ -80,6 +80,7 @@ void PIT_enable(void);
  */
 void PIT_enable_interrupt(PIT_timer_t pit);
 
-void PIT0_IRQHandler(void);
+void PIT_callback_init(PIT_timer_t pit_timer,void (*handler)(void));
+
 
 #endif /* PIT_H_ */

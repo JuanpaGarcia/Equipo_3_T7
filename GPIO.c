@@ -13,6 +13,91 @@
 
 #include "GPIO.h"
 
+static volatile gpio_interrupt_flags_t g_intr_status_flag = {0};
+
+void GPIO_callback_init(gpio_port_name_t port_name,void (*handler)(void))
+{
+	if(GPIO_A == port_name)
+	{
+		gpio_A_callback = handler;
+	}
+	else
+	{
+		gpio_C_callback = handler;
+	}
+}
+
+void PORTC_IRQHandler(void)
+{
+	if(gpio_C_callback)
+	{
+		gpio_C_callback();
+	}
+
+	GPIO_clear_interrupt(GPIO_C);
+
+}
+
+
+void PORTA_IRQHandler(void)
+{
+	if(gpio_A_callback)
+	{
+		gpio_A_callback();
+	}
+
+	GPIO_clear_interrupt(GPIO_A);
+}
+
+void GPIO_clear_irq_status(gpio_port_name_t gpio)
+{
+	if(GPIO_A == gpio)
+	{
+		g_intr_status_flag.flag_port_a = FALSE;
+	}
+	else
+	{
+		g_intr_status_flag.flag_port_c = FALSE;
+	}
+}
+
+uint8_t GPIO_get_irq_status(gpio_port_name_t gpio)
+{
+	uint8_t status = 0;
+
+	if(GPIO_A == gpio)
+	{
+		status = g_intr_status_flag.flag_port_a;
+	}
+	else
+	{
+		status = g_intr_status_flag.flag_port_c;
+	}
+	return(status);
+}
+
+void GPIO_clear_interrupt(gpio_port_name_t port_name)
+{
+	switch(port_name)/** Selecting the GPIO for clock enabling*/
+	{
+		case GPIO_A: /** GPIO A is selected*/
+			PORTA->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_B: /** GPIO B is selected*/
+			PORTB->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_C: /** GPIO C is selected*/
+			PORTC->ISFR = 0xFFFFFFFF;
+			break;
+		case GPIO_D: /** GPIO D is selected*/
+			PORTD->ISFR=0xFFFFFFFF;
+			break;
+		default: /** GPIO E is selected*/
+			PORTE->ISFR=0xFFFFFFFF;
+			break;
+
+	}// end switch
+}
 
 uint8_t GPIO_clock_gating(gpio_port_name_t port_name)
 {
@@ -266,3 +351,8 @@ void GPIO_clear_pin(gpio_port_name_t port_name, uint8_t pin);
 void GPIO_toogle_pin(gpio_port_name_t port_name, uint8_t pin);
 void GPIO_data_direction_port(gpio_port_name_t port_name ,uint32_t direction);
 void GPIO_data_direction_pin(gpio_port_name_t port_name, uint8_t state, uint8_t pin);
+void GPIO_callback_init(gpio_port_name_t port_name,void (*handler)(void));
+void GPIO_clear_irq_status(gpio_port_name_t gpio);
+uint8_t GPIO_get_irq_status(gpio_port_name_t gpio);
+void GPIO_clear_interrupt(gpio_port_name_t port_name);
+
