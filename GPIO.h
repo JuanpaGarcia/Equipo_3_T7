@@ -9,6 +9,17 @@
 	\todo
 	    Interrupts are not implemented in this API implementation.
  */
+/**
+	\file
+	\brief
+		This is the source file for the GPIO device driver for Kinetis K64.
+		It contains all the implementation for configuration functions and runtime functions.
+		i.e., this is the application programming interface (API) for the GPIO peripheral.
+	\author J. Luis Pizano Escalante, luispizano@iteso.mx
+	\date	18/02/2019
+	\todo
+	    Interrupts are not implemented in this API implementation.
+ */
 #ifndef GPIO_H_
 #define GPIO_H_
 
@@ -98,6 +109,11 @@ typedef struct
 	uint8_t flag_port_e : 1;
 } gpio_interrupt_flags_t;
 
+typedef enum {	Not_Pressed,	//nO BUTTON PRESSED
+				SW2, 			//SW1 Pressed
+				SW3, 			//SW2 Pressed
+				SW2_SW3 		//sw1 & sw2 Pressed
+				} Switches_t;
 
 /*! This data type is used to configure the pin control register*/
 typedef const uint32_t gpio_pin_control_register_t;
@@ -107,7 +123,6 @@ typedef const uint32_t gpio_pin_control_register_t;
 /********************************************************************************************/
 /*!
  	 \brief	 This function clears all interrupts that were sensed by the GPIO.
-
  	 \param[in]  port_name Port to clear interrupts.
  	 \return void
  	 \todo Implement a mechanism to clear interrupts by a specific pin.
@@ -122,7 +137,6 @@ void GPIO_clear_interrupt(gpio_port_name_t port_name);
 /*!
  	 \brief	 This function enables the GPIO clock by configuring the corresponding bit
  	 	 and register in the System Clock Gating Control Register.
-
  	 \param[in]  port_name Port to be configured.
  	 \return 1 if the port_name is valid else return 0
  */
@@ -152,7 +166,6 @@ uint8_t GPIO_pin_control_register(gpio_port_name_t port_name, uint8_t pin, gpio_
  	 \param[in] port_name Port to configure
  	 \param[in] direction Input value to specify the port as input or output.
  	 \return void
-
  */
 void GPIO_data_direction_port(gpio_port_name_t port_name, uint32_t direction);
 /********************************************************************************************/
@@ -173,7 +186,6 @@ void GPIO_data_direction_pin(gpio_port_name_t port_name, uint8_t state, uint8_t 
  	 \brief	 This function reads all the GPIO port.
  	 \param[in] port_name Port to be read.
  	 \return  It is the value read from a GPIO. It is a 32-bit value.
-
  */
 uint32_t GPIO_read_port(gpio_port_name_t port_name);
 /********************************************************************************************/
