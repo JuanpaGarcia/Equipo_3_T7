@@ -38,6 +38,7 @@ const State_t FSM[4] =
 void init_interrupt();
 void init();
 
+
 int main()
 {
 	init();
@@ -47,12 +48,13 @@ int main()
 	uint8_t turn = 0;
 	uint8_t sw_input = Not_Pressed;
 	void (*ftpr_selected_color)(void) = 0;
-	//PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY_TIME);
+	PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY_TIME);
+
 
 	while(TRUE)
 	{
 
-		if (Color_Quantity_Per_Funciton > turn) turn = 0; //Ensure not accesing an outbound value in Color Matrix
+		if (Color_Quantity_Per_Funciton <= turn) turn = 0; //Ensure not accesing an outbound value in Color Matrix
 		ftpr_selected_color = FSM[state].ColorMatrix[turn];
 		FSM[state].fptrcallback(FSM[state].Timer, ftpr_selected_color);
 
@@ -123,13 +125,13 @@ void init()
 void init_interrupt()
 {
 
-	/**Sets the threshold for interrupts, if the interrupt has higher priority constant that the BASEPRI, the interrupt will not be attended*/
+	/*Sets the threshold for interrupts, if the interrupt has higher priority constant that the BASEPRI, the interrupt will not be attended*/
 	NVIC_set_basepri_threshold(PRIORITY_10);
-	/**Enables and sets a particular interrupt and its priority*/
+	/*Enables and sets a particular interrupt and its priority*/
 	NVIC_enable_interrupt_and_priotity(PIT_CH0_IRQ, PRIORITY_3);
-	/**Enables and sets a particular interrupt and its priority*/
+	/*Enables and sets a particular interrupt and its priority*/
 	NVIC_enable_interrupt_and_priotity(PORTC_IRQ, PRIORITY_4);
-	/**Enables and sets a particular interrupt and its priority*/
+	/*Enables and sets a particular interrupt and its priority*/
 	NVIC_enable_interrupt_and_priotity(PORTA_IRQ, PRIORITY_4);
 
 	NVIC_global_enable_interrupts;

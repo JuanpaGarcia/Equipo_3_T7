@@ -15,6 +15,8 @@
 #define led_red 22
 #define led_green 26
 #define led_blue 21
+#define GPIO_OFF_CONST (0xFFFFFFFFU)
+#define GPIO_ON_CONST (0U)
 
 
 void red();
