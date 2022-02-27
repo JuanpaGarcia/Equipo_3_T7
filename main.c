@@ -47,7 +47,6 @@ int main()
 	uint8_t turn = 0;
 	uint8_t sw_input = Not_Pressed;
 	void (*ftpr_selected_color)(void) = 0;
-
 	//PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY_TIME);
 
 	while(TRUE)
@@ -91,18 +90,19 @@ void init()
 {
 	gpio_pin_control_register_t input_intr_config = GPIO_MUX1|GPIO_PE|GPIO_PS|INTR_FALLING_EDGE; // SW interrupt config
 	gpio_pin_control_register_t pcr_gpioe_pin_led = GPIO_MUX1;
+	gpio_pin_control_register_t pcr_gpiob_pin_led = GPIO_MUX1;
 
 	GPIO_clock_gating(GPIO_A);
 	GPIO_clock_gating(GPIO_B);
 	GPIO_clock_gating(GPIO_C);
 	GPIO_clock_gating(GPIO_E);
 
-	GPIO_pin_control_register(GPIO_A,4, &input_intr_config);
-	GPIO_pin_control_register(GPIO_C,6, &input_intr_config);
+	GPIO_pin_control_register(GPIO_A,bit_4, &input_intr_config);
+	GPIO_pin_control_register(GPIO_C,bit_6, &input_intr_config);
 
-	GPIO_pin_control_register(GPIO_B,21,&pcr_gpioe_pin_led);
-	GPIO_pin_control_register(GPIO_B,22,&pcr_gpioe_pin_led);
-	GPIO_pin_control_register(GPIO_E,26,&pcr_gpioe_pin_led);
+	GPIO_pin_control_register(GPIO_B,bit_21,&pcr_gpiob_pin_led);
+	GPIO_pin_control_register(GPIO_B,bit_22,&pcr_gpiob_pin_led);
+	GPIO_pin_control_register(GPIO_E,bit_26,&pcr_gpioe_pin_led);
 
 	GPIO_write_port(GPIO_B, GPIO_OFF_CONST);
 	GPIO_write_port(GPIO_E, GPIO_OFF_CONST);

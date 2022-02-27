@@ -13,8 +13,8 @@
 #include "Bits.h"
 
 #define led_red 22
-#define led_green 23
-#define led_blue 26
+#define led_green 26
+#define led_blue 21
 
 
 void red();
