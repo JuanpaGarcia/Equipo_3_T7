@@ -15,6 +15,8 @@
 #define SYSTEM_CLOCK (21000000U)
 #define Color_Quantity_Per_Funciton 3
 #define SYSTEM_CLOCK (21000000U)
+#define GPIO_OFF_CONST (0xFFFFFFFFU)
+#define GPIO_ON_CONST (0U)
 
 typedef struct
 {
@@ -37,6 +39,12 @@ const State_t FSM[4] =
 void init_interrupt();
 void init();
 
+gpio_pin_control_register_t pcr_gpiob_pin_21 = GPIO_MUX1;
+gpio_pin_control_register_t pcr_gpiob_pin_22 = GPIO_MUX1;
+gpio_pin_control_register_t pcr_gpioe_pin_26 = GPIO_MUX1;
+gpio_pin_control_register_t pcr_gpioc_pin_6 = GPIO_MUX1|GPIO_PE|GPIO_PS;
+gpio_pin_control_register_t pcr_gpioa_pin_4 = GPIO_MUX1|GPIO_PE|GPIO_PS;
+
 int main()
 {
 	init();
@@ -47,7 +55,13 @@ int main()
 	uint8_t sw_input = Not_Pressed;
 	void (*ftpr_selected_color)(void) = 0;
 
-	//PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY_TIME);
+	 red();
+	 green();
+	 blue();
+	 white();
+	 purple();
+	 yellow();
+	 off();
 
 	while(TRUE)
 	{
@@ -89,25 +103,34 @@ int main()
 void init()
 {
 	gpio_pin_control_register_t input_intr_config = GPIO_MUX1|GPIO_PE|GPIO_PS|INTR_FALLING_EDGE; // SW interrupt config
-	gpio_pin_control_register_t pcr_gpioe_pin_led = GPIO_MUX1;
 
 	GPIO_clock_gating(GPIO_A);
 	GPIO_clock_gating(GPIO_B);
 	GPIO_clock_gating(GPIO_C);
 	GPIO_clock_gating(GPIO_E);
+	GPIO_pin_control_register(GPIO_B,bit_21,&pcr_gpiob_pin_21);
+	GPIO_pin_control_register(GPIO_B,bit_22,&pcr_gpiob_pin_22);
+	GPIO_pin_control_register(GPIO_E,bit_26,&pcr_gpioe_pin_26);
+	GPIO_pin_control_register(GPIO_C,bit_6,&pcr_gpioc_pin_6);
+	GPIO_pin_control_register(GPIO_A,bit_4,&pcr_gpioa_pin_4);
 
-	GPIO_pin_control_register(GPIO_A,4, &input_intr_config);
-	GPIO_pin_control_register(GPIO_C,6, &input_intr_config);
+	GPIO_data_direction_pin(GPIO_B,GPIO_OUTPUT, bit_21);
+	GPIO_data_direction_pin(GPIO_B,GPIO_OUTPUT,bit_22);
+	GPIO_data_direction_pin(GPIO_E,GPIO_OUTPUT,bit_26);
+	//GPIO_data_direction_pin(GPIO_C,GPIO_INPUT, bit_6);
+	//GPIO_data_direction_pin(GPIO_A,GPIO_INPUT, bit_4);
 
-	GPIO_pin_control_register(GPIO_B,21,&pcr_gpioe_pin_led);
-	GPIO_pin_control_register(GPIO_B,22,&pcr_gpioe_pin_led);
-	GPIO_pin_control_register(GPIO_E,26,&pcr_gpioe_pin_led);
+	GPIO_pin_control_register(GPIO_A, bit_4, &input_intr_config);
+	GPIO_pin_control_register(GPIO_C, bit_6, &input_intr_config);
 
-	GPIO_data_direction_pin(GPIO_B, GPIO_OUTPUT, bit_21);
-	GPIO_data_direction_pin(GPIO_B, GPIO_OUTPUT, bit_22);
-	GPIO_data_direction_pin(GPIO_E, GPIO_OUTPUT, bit_26);
-	GPIO_data_direction_pin(GPIO_C, GPIO_INPUT, bit_6);
-	GPIO_data_direction_pin(GPIO_A, GPIO_INPUT, bit_4);
+	 red();
+	 green();
+	 blue();
+	 white();
+	 purple();
+	 yellow();
+	 off();
+
 
 	PIT_clock_gating();
 	PIT_enable();
